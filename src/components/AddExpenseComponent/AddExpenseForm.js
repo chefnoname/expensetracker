@@ -38,18 +38,11 @@ const formatDate = date => {
 const AddExpenseForm = () => {
   const { setExpenseFormData } = useContext(ExpenseContext);
   const onSubmit = (values, actions) => {
-    const newExpenseVal = {};
+    values.date = formatDate(values.date);
+    values.amount = Number(values.amount);
 
-    Object.entries(values)
-      .map(([key, val]) =>
-        Number(val) && typeof val !== 'object' ? [key, Number(val)] : [key, val]
-      )
-      .forEach(val => (newExpenseVal[val[0]] = val[1]));
-
-    newExpenseVal.date = formatDate(newExpenseVal.date);
-
-    console.log(newExpenseVal);
-    setExpenseFormData(newExpenseVal);
+    console.log(values);
+    setExpenseFormData(values);
     actions.resetForm();
   };
 
