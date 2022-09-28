@@ -5,7 +5,11 @@ const CustomInput = ({ ...props }) => {
 
   return (
     <>
-      <input {...field} {...props} />
+      <input
+        {...field}
+        {...props}
+        className={meta.touched && meta.error ? 'input-error' : ''}
+      />
     </>
   );
 };

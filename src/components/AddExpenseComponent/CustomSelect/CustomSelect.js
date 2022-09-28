@@ -1,10 +1,14 @@
 import { useField } from 'formik';
 
 const CustomSelect = ({ ...props }) => {
-  const [field] = useField(props);
+  const [field, meta] = useField(props);
   return (
     <>
-      <select {...field} {...props} />
+      <select
+        {...field}
+        {...props}
+        className={meta.touched && meta.error ? 'input-error' : ''}
+      />
     </>
   );
 };
