@@ -1,100 +1,67 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useContext } from 'react';
 import 'ag-grid-enterprise';
 import { AgGridReact } from 'ag-grid-react';
 
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
+import { ExpenseContext } from '../Context/ExpenseContext';
+import { useEffect } from 'react';
+import { useRef } from 'react';
 
 const data = [
   {
-    month: 'January',
-    bills: 1000,
-    subscriptions: 90,
-    food: 100,
-    groceries: 400,
-    shopping: 500,
-    transport: 300,
-    dummy: '',
+    date: '26/09/2022',
+    description: 'Sandwhich',
+    category: 'Food',
+    method: 'Cash',
+    amount: 4,
   },
   {
-    month: 'February',
-    bills: 1000,
-    subscriptions: 100,
-    food: 200,
-    groceries: 200,
-    shopping: 600,
-    transport: 900,
-    dummy: '',
+    date: '10/09/2022',
+    description: 'Train',
+    category: 'Transport',
+    method: 'Debit Card',
+    amount: 20,
   },
   {
-    month: 'March',
-    bills: 4000,
-    subscriptions: 100,
-    food: 500,
-    groceries: 600,
-    shopping: 100,
-    transport: 400,
-    dummy: '',
+    date: '13/09/2022',
+    description: 'Jeans',
+    category: 'Miscellanous',
+    method: 'Credit Card',
+    amount: 60,
   },
 ];
 
-const formatterFactory = params => {
-  if (typeof params.value === 'number') {
-    return '£ ' + (Math.round(params.value * 100) / 100).toLocaleString();
-  }
-};
-
-const totalExp = params => {
-  if (params.data) {
-    const { bills, subscriptions, food, groceries, shopping, transport } =
-      params.data;
-
-    const total =
-      bills + subscriptions + food + groceries + shopping + transport;
-    return total;
-  }
-};
+const formatterFactory = params =>
+  '£ ' + (Math.round(params.value * 100) / 100).toLocaleString();
 
 const GridComponent = () => {
   const [rowData, setRowData] = useState(data);
-
+  const { expenseFormData } = useContext(ExpenseContext);
+  const gridRef = useRef();
   const [columnDefs] = useState([
-    { field: 'month', editable: false },
-    {
-      headerName: 'Total Expenditure',
-      field: 'totalExpenditure',
-      valueGetter: totalExp,
-      valueFormatter: formatterFactory,
-      editable: false,
-    },
-    {
-      field: 'bills',
-    },
-    { field: 'subscriptions' },
-    { field: 'food', headerName: 'Food & Drink' },
-    { field: 'groceries' },
-    // { field: 'shopping' },
-    // { field: 'transport' },
-    { field: 'dummy', hide: true, rowGroup: true },
+    { field: 'date' },
+    { field: 'description' },
+    { field: 'category' },
+    { field: 'method' },
+    { field: 'amount', valueFormatter: formatterFactory },
   ]);
 
-  const defaultColDef = {
-    valueFormatter: formatterFactory,
-    aggFunc: 'sum',
-    editable: true,
-    valueSetter: params => {
-      params.data[params.colDef.field] = Number(params.newValue);
-      return true;
-    },
-  };
+  useEffect(() => {
+    if (Object.entries(expenseFormData).length > 0)
+      setRowData(current => [...current, expenseFormData]);
+
+    setTimeout(() => {
+      gridRef.current.api.redrawRows();
+    }, 100);
+  }, [expenseFormData]);
 
   return (
     <div className='ag-theme-alpine' style={{ height: 400, width: '80%' }}>
       <AgGridReact
+        ref={gridRef}
         rowData={rowData}
         columnDefs={columnDefs}
-        defaultColDef={defaultColDef}
-        groupDefaultExpanded={-1}
       ></AgGridReact>
     </div>
   );
